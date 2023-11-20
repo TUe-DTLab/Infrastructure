@@ -1,0 +1,23 @@
+FROM docker.io/python:3.11 AS builder
+
+RUN pip install --user pipenv
+
+# Tell pipenv to create venv in the current directory
+ENV PIPENV_VENV_IN_PROJECT=1
+
+# Pipfile contains requests
+ADD Pipfile.lock Pipfile /usr/src/
+
+WORKDIR /usr/src
+
+RUN /root/.local/bin/pipenv sync
+
+FROM docker.io/python:3.11 AS runtime
+
+RUN mkdir -v /usr/src/.venv
+
+COPY --from=builder /usr/src/.venv/ /usr/src/.venv/
+WORKDIR /usr/src/
+COPY . .
+
+ENTRYPOINT [ "/usr/src/startup.sh" ]

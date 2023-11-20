@@ -1,0 +1,43 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+python-dotenv = "*"
+sqlalchemy = "<2.0"
+alembic = "*"
+huey = "*"
+gunicorn = "*"
+black = "*"
+isort = "*"
+flake8 = "*"
+requests = "*"
+numpy = "*"
+pytz = "*"
+pandas = "*"
+python-multipart = "*"
+openpyxl = "*"
+fastapi-users = {extras = ["sqlalchemy"], version = "*"}
+fastapi-users-db-sqlalchemy = "<5.0.0"
+sqlalchemy-oso = "*"
+oso = "*"
+asyncpg = "*"
+pytest = "*"
+httpx = "*"
+pytest-asyncio = "*"
+psycopg2-binary = "*"
+flake8-isort = "*"
+sparqlwrapper = "*"
+alembic-utils = "*"
+pydantic = "<2.0.0"
+sqlalchemy-file = "*"
+fasteners = "*"
+
+[dev-packages]
+tomli = "*"
+
+[requires]
+python_version = "3.11"

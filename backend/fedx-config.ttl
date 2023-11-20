@@ -1,0 +1,24 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rep: <http://www.openrdf.org/config/repository#>.
+@prefix fedx: <http://rdf4j.org/config/federation#>.
+@prefix sd: <http://www.w3.org/ns/sparql-service-description#>.
+
+[] a rep:Repository;
+   rep:repositoryID "$repo_id";
+   rdfs:label "$repo_label";
+   rep:repositoryImpl [
+      rep:repositoryType "graphdb:FedXRepository" ;
+      fedx:enforceMaxQueryTime "0";
+      fedx:joinWorkerThreads "20";
+      fedx:unionWorkerThreads "20";
+      fedx:leftJoinWorkerThreads "10";
+      fedx:boundJoinBlockSize "15";
+      fedx:enableServiceAsBoundJoin "true";
+      fedx:enableMonitoring "false";
+      fedx:isLogQueryPlan "false";
+      fedx:isLogQueries "false";
+      fedx:debugQueryPlan "false";
+      fedx:includeInferredDefault "true";
+      fedx:sourceCacheSpec "maximumSize=1000,expireAfterWrite=6h";
+      fedx:member $repo_members 
+   ].

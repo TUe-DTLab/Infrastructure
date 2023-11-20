@@ -1,0 +1,11 @@
+.venv/
+*.pyc
+/media/
+huey.db
+.vscode/
+bin/
+*.log
+
+huey.db-shm
+
+huey.db-wal

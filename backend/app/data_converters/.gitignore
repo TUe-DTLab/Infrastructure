@@ -1,0 +1,12 @@
+# Ignore everything by default
+*
+!*/
+
+# whitelist this file
+!.gitignore
+
+# whitelist install script
+!/install.sh
+
+# whitelist python files in this directory only
+!/*.py

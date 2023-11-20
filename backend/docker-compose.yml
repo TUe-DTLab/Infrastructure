@@ -1,0 +1,33 @@
+version: '3'
+services:
+  api:
+    build: .
+    container_name: server-api
+    ports:
+      - "8080:80"
+    env_file:
+      - variables.env
+    #environment:
+    #  - DATABASE_USER=dtlab_user
+    #  - DATABASE_PASSWORD=dtlab_password
+    #  - DATABASE_HOST=db
+    #  - DATABASE_NAME=dtlab_db
+    #  - DATABSE_PORT="5432"
+
+    #db:
+    #  image: timescale/timescaledb-ha:pg14-latest
+    #  container_name: db-api
+    #  ports:
+    #    - "5432:5432"
+    #  environment:
+    #    - POSTGRES_USER=dtlab_user
+    #    - POSTGRES_PASSWORD=dtlab_password
+    #    - POSTGRES_DB=dtlab_db
+    #  volumes:
+    #    - "./database_data:/var/lib/postgresql/data"
+    #  networks:
+    #    - backend
+    #frontend:
+
+
+

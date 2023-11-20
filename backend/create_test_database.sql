@@ -1,0 +1,18 @@
+CREATE ROLE dtlab_user_test WITH
+    LOGIN
+    SUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    INHERIT
+    NOREPLICATION
+    CONNECTION LIMIT -1
+    PASSWORD '73X5VsJP6w';
+
+CREATE DATABASE dtlab_test WITH
+    OWNER = dtlab_user_test
+    ENCODING = 'UTF8'
+    CONNECTION LIMIT = -1;
+
+GRANT ALL PRIVILEGES ON DATABASE dtlab_test TO dtlab_user_test;
+
+\q

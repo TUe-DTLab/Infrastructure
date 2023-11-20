@@ -1,0 +1,112 @@
+
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  DOCKER_TLS_CERTDIR: "/certs"
+  
+
+
+cache:
+  paths:
+    - .cache/pip
+    - .venv/
+
+.python_template: &python_configuration    
+  image: python:3.11-slim
+  before_script:
+    - python --version
+    - pip install pipenv
+    - pipenv sync
+
+stages:
+  - linting
+  - testing
+  - build
+  - deploy
+
+
+linting:
+  <<: *python_configuration
+  stage: linting
+  script:
+    - pipenv run black --check -- .
+    - pipenv run flake8 .
+
+
+pytest:
+  <<: *python_configuration
+  stage: testing
+  allow_failure: true #temporary
+  services:
+    - digitaltwinlab/postgres_ext
+  variables:
+    POSTGRES_DB: $DATABASE_DB
+    POSTGRES_USER: $DATABASE_USER
+    POSTGRES_PASSWORD: $DATABASE_PASSWORD
+    DATABASE_HOST: $DATABASE_HOST
+  script:
+    - pipenv run pytest -v
+
+build-production:
+  stage: build
+  image: docker:20.10.16
+  variables:
+    IMAGE_NAME: "digitaltwinlab/server-api"
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  script:
+    #- docker pull $IMAGE_NAME:latest || true
+    #- docker build --cache-from $IMAGE_NAME:latest --push -t $IMAGE_NAME:$CI_COMMIT_SHA .
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA -t $IMAGE_NAME:latest  .
+    - docker push -a $IMAGE_NAME
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+build-staging:
+  stage: build
+  image: docker:20.10.16
+  variables:
+    IMAGE_NAME: "digitaltwinlab/server-api-staging"
+  services:
+    - docker:dind
+  before_script:
+    - docker info
+    - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  script:
+    #- docker pull $IMAGE_NAME:latest || true
+    #- docker build --cache-from $IMAGE_NAME:latest --push -t $IMAGE_NAME:$CI_COMMIT_SHA .
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHORT_SHA -t $IMAGE_NAME:latest  .
+    - docker push -a $IMAGE_NAME
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+
+
+deploy-production:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache openssh
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_dsa
+    - chmod 600 ~/.ssh/id_dsa
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - ssh dtlab@20.229.213.129 "cd /opt/DTLab/server; docker compose pull; docker compose up -d"
+  
+deploy-staging:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "staging"
+  image: alpine
+  stage: deploy
+  script:
+    - apk add --no-cache openssh
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" >> ~/.ssh/id_dsa
+    - chmod 600 ~/.ssh/id_dsa
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - ssh dtlab@20.229.213.129 "cd /opt/DTLab/server-staging; docker compose pull; docker compose up -d"
+
